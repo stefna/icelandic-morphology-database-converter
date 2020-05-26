@@ -1,0 +1,37 @@
+{
+	"name": "stefna/icelandic-morphology-database-converter",
+	"description": "Convert for the Database of Icelandic Morphology (DIM)",
+	"license": "MIT",
+	"type": "project",
+	"authors": [
+		{
+			"name": "Birgir Haraldsson",
+			"email": "biggi@stefna.is"
+		}
+	],
+	"require": {
+		"symfony/console": "^4.4"
+	},
+	"require-dev": {
+		"roave/security-advisories": "dev-master",
+		"phpunit/phpunit": "^9.1"
+	},
+	"bin": [
+		"bin/dim-convert"
+	],
+	"autoload": {
+		"psr-4": {
+			"Stefna\\DIMConverter\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Tests\\Stefna\\DIMConverter\\": "tests/"
+		}
+	},
+	"config":{
+		"platform": {
+			"php": "7.4.5"
+		}
+	}
+}
