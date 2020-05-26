@@ -3,8 +3,10 @@
 namespace Stefna\DIMConverter;
 
 use Generator;
+use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 final class Converter
 {
@@ -17,6 +19,7 @@ final class Converter
 	private ?array $filterGenreInflectional = null;
 	private ?array $filterValueInflectional = null;
 	private bool $addAlternativeEntries = false;
+	private bool $merge = false;
 
 	public static function createFromInput(InputInterface $input): self
 	{
@@ -67,6 +70,9 @@ final class Converter
 		}
 
 		$ret->addAlternativeEntries = (bool)($options[Options::ADD_ALTERNATIVE_ENTRIES] ?? false);
+
+		$ret->merge = (bool)($options[Options::MERGE] ?? false);
+
 		return $ret;
 	}
 
@@ -88,24 +94,29 @@ final class Converter
 		foreach ($this->readLine($inputFilename) as $line) {
 			$lineNo++;
 			if (!$this->filter($line)) {
-				$this->output && $this->output->writeln(sprintf('Filter out line %d', $lineNo), OutputInterface::VERBOSITY_DEBUG);
+				$this->debug(sprintf('Filter out line %d', $lineNo));
 				continue;
 			}
+			$id = $line->getId();
 			$word = $line->getWord();
-			if (!isset($data[$word])) {
-				$data[$word] = DataEntry::create($word);
+			if (!isset($data[$id])) {
+				$data[$id] = DataEntry::create($word);
 			}
 			$inflectionalForm = $line->getInflectionalForm();
 			if ($inflectionalForm === $word) {
 				continue;
 			}
-			$data[$word]->add($inflectionalForm);
+			$data[$id]->add($inflectionalForm);
 			if ($this->addAlternativeEntries && $alt = $line->getAlternativeEntry()) {
-				$data[$word]->add($alt);
+				$data[$id]->add($alt);
 			}
 		}
 		if (!$data) {
 			return 1;
+		}
+
+		if ($this->merge) {
+			$data = $this->merge($data);
 		}
 
 		return $this->outputToFile($outputFilename, ...array_values($data));
@@ -115,18 +126,18 @@ final class Converter
 	{
 		$f = fopen($inputFilename, 'rb');
 		if (!$f) {
-			throw new \InvalidArgumentException('Could not open input file');
+			throw new InvalidArgumentException('Could not open input file');
 		}
-		$this->output && $this->output->writeln(sprintf('Starting to read from %s', $inputFilename), OutputInterface::VERBOSITY_DEBUG);
+		$this->debug(sprintf('Starting to read from %s', $inputFilename));
 		$lineNo = 0;
 		try {
 			while ($line = fgets($f)) {
 				$lineNo++;
-				$this->output && $this->output->writeln(sprintf('Reading line %d', $lineNo), OutputInterface::VERBOSITY_DEBUG);
+				$this->debug(sprintf('Reading line %d', $lineNo));
 				try {
 					yield Line::create($line);
 				}
-				catch (\Throwable $e) {
+				catch (Throwable $e) {
 					// just ignore, or perhaps log?
 					$this->output && $this->output->writeln(sprintf('<warn>Problem in line %d</warn>', $lineNo));
 				}
@@ -144,12 +155,12 @@ final class Converter
 		foreach ($data as $dataEntry) {
 			$word = $dataEntry->getWord();
 			foreach ($dataEntry->getWords() as $other) {
-				fwrite($f, "$word => $other\n");
+				fwrite($f, "$other => $word\n");
 				$total++;
 			}
 		}
 		fclose($f);
-		$this->output && $this->output->writeln(sprintf('Added %d lines to %s', $total, $outputFilename), OutputInterface::VERBOSITY_DEBUG);
+		$this->debug(sprintf('Added %d lines to %s', $total, $outputFilename));
 		return 0;
 	}
 
@@ -190,5 +201,37 @@ final class Converter
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * @param DataEntry[] $data
+	 * @return DataEntry[]
+	 */
+	private function merge(array $data): array
+	{
+		$this->debug(sprintf('Start merging of %d', count($data)));
+		ksort($data);
+
+		$seen = [];
+		foreach ($data as $id => $dataEntry) {
+			foreach ($dataEntry->getWords() as $word) {
+				if (isset($seen[$word])) {
+					$otherId = $seen[$word];
+					if (!isset($data[$otherId])) {
+						continue;
+					}
+					$data[$otherId]->merge($dataEntry);
+					unset($data[$id]);
+					continue;
+				}
+				$seen[$word] = $id;
+			}
+		}
+		return $data;
+	}
+
+	private function debug(string $msg): void
+	{
+		$this->output && $this->output->writeln($msg, OutputInterface::VERBOSITY_DEBUG);
 	}
 }

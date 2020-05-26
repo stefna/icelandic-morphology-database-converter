@@ -41,10 +41,12 @@ final class ConvertElasticSearch extends Command
 		$this->addOption(Options::FILTER_VALUE_INFLECTIONAL_BASIC, 'VB', InputOption::VALUE_NONE, 'Basic preset for value of inflactional form');
 
 		$this->addOption(Options::ADD_ALTERNATIVE_ENTRIES, null, InputOption::VALUE_NONE, 'Should the alternative entry be added if available');
+		$this->addOption(Options::MERGE, null, InputOption::VALUE_NONE, 'Should same inflection forms be merged into the first base form (based on ID)');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
+		$start = microtime(true);
 		$inputFilename = $input->getArgument(Options::INPUT_FILE);
 		if (!is_file($inputFilename)) {
 			throw new InvalidArgumentException('Must provide an existing input file');
@@ -57,6 +59,11 @@ final class ConvertElasticSearch extends Command
 		$converter = Converter::createFromInput($input);
 
 		$converter->setOutput($output);
-		return $converter->convert($inputFilename, $outputFilename);
+		$ret = $converter->convert($inputFilename, $outputFilename);
+		if ($output->isVerbose()) {
+			$time = (microtime(true) - $start);
+			$output->writeln(sprintf('Time: %0.2f sec, max-memory: %0.2f MB', $time, memory_get_peak_usage(false) / 1000 / 1000));
+		}
+		return $ret;
 	}
 }

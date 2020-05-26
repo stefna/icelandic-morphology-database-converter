@@ -32,5 +32,10 @@ final class DataEntry
 		return $this->words;
 	}
 
-
+	public function merge(DataEntry $dataEntry): void
+	{
+		foreach ($dataEntry->getWords() as $word) {
+			$this->add($word);
+		}
+	}
 }

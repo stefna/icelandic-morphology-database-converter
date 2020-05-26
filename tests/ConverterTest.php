@@ -162,6 +162,30 @@ final class ConverterTest extends TestCase
 		$this->assertCount(1, $lines);
 	}
 
+	public function testConvertMergeDuplicates(): void
+	{
+		$converter = Converter::createFromArray([
+			Options::MERGE => true,
+		]);
+
+		$converter->convert(__DIR__ . '/fixtures/kristin-1000.csv', $this->outputFile);
+
+		$lines = file($this->outputFile);
+		$this->assertCount(505, $lines);
+	}
+
+	public function testConvertCorrectFormat(): void
+	{
+		$converter = Converter::createFromArray([
+			Options::MERGE => true,
+		]);
+
+		$converter->convert(__DIR__ . '/fixtures/kristin-duplicates.csv', $this->outputFile);
+
+		$line = trim(file($this->outputFile)[0]);
+		$this->assertSame('AA-fundurinn => AA-fundur', $line);
+	}
+
 	protected function setUp(): void
 	{
 		parent::setUp();

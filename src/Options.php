@@ -22,4 +22,5 @@ final class Options
 	public const BASIC_DOMAIN_LIST = ['alm','ffl','gjald','mat','mæl','titl','tími','tung','við','ism','gæl','föð','móð','bær','göt','lönd','þor','örn','fyr','mvirk'];
 	public const BASIC_GENRE_LIST = ['', 'form','gam','ofor','stad'];
 	public const BASIC_VALUE_LIST = ['', 'jafn','rik','reik','hlid','merk1','merk2','osb'];
+	public const MERGE = 'merge';
 }
