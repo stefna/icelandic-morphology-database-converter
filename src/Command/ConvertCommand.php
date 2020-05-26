@@ -11,18 +11,20 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class ConvertElasticSearch extends Command
+final class ConvertCommand extends Command
 {
 	protected function configure(): void
 	{
 		parent::configure();
 
-		$this->setName('elastic');
-		$this->setAliases(['es']);
+		$this->setName('convert');
 		$this->setDescription('Information about terminology can be found here https://bin.arnastofnun.is/DMII/LTdata/k-format/');
 
 		$this->addArgument(Options::INPUT_FILE, InputArgument::REQUIRED, 'The input CSV file');
 		$this->addArgument(Options::OUTPUT_FILE, InputArgument::REQUIRED, 'The output file');
+
+		$this->addOption(Options::OUTPUT_FORMAT_ELASTIC, 'E', InputOption::VALUE_NONE, 'Format output for elasticsearch');
+		$this->addOption(Options::OUTPUT_FORMAT_SOLR, 'S', InputOption::VALUE_NONE, 'Format output for solr (default)');
 
 		$this->addOption(Options::INPUT_FORMAT, 'I', InputOption::VALUE_REQUIRED, 'Which format is the input. K or S');
 		$this->addOption(Options::FILTER_DOMAIN, null, InputOption::VALUE_REQUIRED, 'Comma separated list of domains');
@@ -56,14 +58,14 @@ final class ConvertElasticSearch extends Command
 			throw new \InvalidArgumentException('The output file must not exist before run');
 		}
 
-		$converter = Converter::createFromInput($input);
+		$converter = Converter::createFromOptionsArray($input->getOptions());
 
 		$converter->setOutput($output);
 		$ret = $converter->convert($inputFilename, $outputFilename);
 		if ($output->isVerbose()) {
 			$time = (microtime(true) - $start);
-			$output->writeln(sprintf('Time: %0.2f sec, max-memory: %0.2f MB', $time, memory_get_peak_usage(false) / 1000 / 1000));
+			$output->writeln(sprintf('Lines: %d, Time: %0.2f sec, max-memory: %0.2f MB', $ret, $time, memory_get_peak_usage(false) / 1000 / 1000));
 		}
-		return $ret;
+		return 0;
 	}
 }

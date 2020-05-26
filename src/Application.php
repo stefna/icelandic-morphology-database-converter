@@ -2,7 +2,7 @@
 
 namespace Stefna\DIMConverter;
 
-use Stefna\DIMConverter\Command\ConvertElasticSearch;
+use Stefna\DIMConverter\Command\ConvertCommand;
 
 final class Application extends \Symfony\Component\Console\Application
 {
@@ -10,9 +10,8 @@ final class Application extends \Symfony\Component\Console\Application
 	{
 		parent::__construct($name, $version);
 
-
 		$this->addCommands([
-			new ConvertElasticSearch(),
+			new ConvertCommand(),
 		]);
 	}
 }

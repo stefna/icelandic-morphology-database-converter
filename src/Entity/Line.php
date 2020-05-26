@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Stefna\DIMConverter;
+namespace Stefna\DIMConverter\Entity;
 
 use InvalidArgumentException;
 
@@ -22,7 +22,7 @@ final class Line
 	private ?string $valueOfInflectionalForm;
 	private ?string $alternativeEntry;
 
-	public static function create(string $line): self
+	public static function createKristinarForm(string $line): self
 	{
 		$ret = new self();
 		$line = trim($line);
@@ -48,7 +48,24 @@ final class Line
 		return $ret;
 	}
 
-	final private function __construct()
+	public static function createSigrunarForm(string $line): self
+	{
+		$ret = new self();
+		$line = trim($line);
+		$parts = explode(';', $line);
+		if (count($parts) < 6) {
+			throw new InvalidArgumentException('Bad input line');
+		}
+		$ret->word = array_shift($parts);
+		$ret->id = (int)array_shift($parts);
+		$ret->wordClass = array_shift($parts);
+		$ret->domain = array_shift($parts);
+		$ret->inflectionalForm = array_shift($parts);
+		$ret->grammar = array_shift($parts);
+		return $ret;
+	}
+
+	private function __construct()
 	{
 	}
 

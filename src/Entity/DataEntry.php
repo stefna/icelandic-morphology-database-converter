@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Stefna\DIMConverter;
+namespace Stefna\DIMConverter\Entity;
 
 final class DataEntry
 {

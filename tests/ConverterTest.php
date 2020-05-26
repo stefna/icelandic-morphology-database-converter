@@ -12,7 +12,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvert(): void
 	{
-		$converter = Converter::createFromArray([]);
+		$converter = $this->createConverter([]);
 
 		$converter->convert(__DIR__ . '/fixtures/kristin-1000.csv', $this->outputFile);
 
@@ -22,7 +22,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterDomain(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_DOMAIN => 'alm',
 		]);
 
@@ -34,7 +34,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterDomainBasic(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_DOMAIN_BASIC => true,
 		]);
 
@@ -46,7 +46,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterMaxCorrectnessWord(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_MAX_CORRECTNESS_WORD => 1,
 		]);
 
@@ -58,7 +58,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterMaxCorrectnessInflection(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_MAX_CORRECTNESS_INFLECTIONAL => 1,
 		]);
 
@@ -70,7 +70,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterGenre(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_GENRE_WORD => 'OFOR',
 		]);
 
@@ -82,7 +82,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterGenreBasic(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_GENRE_WORD_BASIC => true,
 		]);
 
@@ -94,7 +94,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterVisibility(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_VISIBILITY => 'K',
 		]);
 
@@ -106,7 +106,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterGenreInflectional(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_GENRE_INFLECTIONAL => 'URE',
 		]);
 
@@ -118,7 +118,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterGenreInflectionalBasic(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_GENRE_INFLECTIONAL_BASIC => true,
 		]);
 
@@ -130,7 +130,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertFilterValue(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::FILTER_VALUE_INFLECTIONAL => 'HLID',
 		]);
 
@@ -142,7 +142,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertAddAlternative(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::ADD_ALTERNATIVE_ENTRIES => true,
 		]);
 
@@ -154,7 +154,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertNoDuplicates(): void
 	{
-		$converter = Converter::createFromArray([]);
+		$converter = $this->createConverter([]);
 
 		$converter->convert(__DIR__ . '/fixtures/kristin-duplicates.csv', $this->outputFile);
 
@@ -164,7 +164,7 @@ final class ConverterTest extends TestCase
 
 	public function testConvertMergeDuplicates(): void
 	{
-		$converter = Converter::createFromArray([
+		$converter = $this->createConverter([
 			Options::MERGE => true,
 		]);
 
@@ -174,16 +174,28 @@ final class ConverterTest extends TestCase
 		$this->assertCount(505, $lines);
 	}
 
-	public function testConvertCorrectFormat(): void
+	public function testConvertOutputFormatElastic(): void
 	{
-		$converter = Converter::createFromArray([
-			Options::MERGE => true,
+		$converter = $this->createConverter([
+			Options::OUTPUT_FORMAT_ELASTIC => true,
 		]);
 
 		$converter->convert(__DIR__ . '/fixtures/kristin-duplicates.csv', $this->outputFile);
 
 		$line = trim(file($this->outputFile)[0]);
 		$this->assertSame('AA-fundurinn => AA-fundur', $line);
+	}
+
+	public function testConvertOutputFormatSolr(): void
+	{
+		$converter = $this->createConverter([
+			Options::OUTPUT_FORMAT_SOLR => true,
+		]);
+
+		$converter->convert(__DIR__ . '/fixtures/kristin-duplicates.csv', $this->outputFile);
+
+		$line = trim(file($this->outputFile)[0]);
+		$this->assertSame("AA-fundurinn\tAA-fundur", $line);
 	}
 
 	protected function setUp(): void
@@ -199,5 +211,10 @@ final class ConverterTest extends TestCase
 		if (is_file($this->outputFile)) {
 			unlink($this->outputFile);
 		}
+	}
+
+	private function createConverter(array $options): Converter
+	{
+		return Converter::createFromOptionsArray($options);
 	}
 }
