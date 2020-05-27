@@ -46,4 +46,5 @@ final class Options
 	public const BASIC_VALUE_LIST = ['', 'jafn', 'rik', 'reik', 'hlid', 'merk1', 'merk2', 'osb'];
 	public const MERGE = 'merge';
 	public const ADD_ALTERNATIVE_ENTRIES = 'add-alternative-entries';
+	public const CASE_SENSITIVE = 'case-sensitive';
 }

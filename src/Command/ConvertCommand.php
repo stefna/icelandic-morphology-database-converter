@@ -44,6 +44,7 @@ final class ConvertCommand extends Command
 
 		$this->addOption(Options::ADD_ALTERNATIVE_ENTRIES, null, InputOption::VALUE_NONE, 'Should the alternative entry be added if available');
 		$this->addOption(Options::MERGE, null, InputOption::VALUE_NONE, 'Should same inflection forms be merged into the first base form (based on ID)');
+		$this->addOption(Options::CASE_SENSITIVE, null, InputOption::VALUE_NONE, 'Should the words keep case (default: no)');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int

@@ -16,6 +16,7 @@ final class Config
 	private ?array $filterValueInflectional = null;
 	private bool $addAlternativeEntries = false;
 	private bool $merge = false;
+	private bool $caseSensitive = false;
 	private string $outputFormat = OutputWriterFactory::FORMAT_SOLR;
 	private string $inputFormat = LineFactory::FORMAT_KRISTIN;
 
@@ -88,6 +89,13 @@ final class Config
 	{
 		$clone = clone $this;
 		$clone->merge = $param;
+		return $clone;
+	}
+
+	public function withCaseSensitive(bool $param): self
+	{
+		$clone = clone $this;
+		$clone->caseSensitive = $param;
 		return $clone;
 	}
 
@@ -164,5 +172,10 @@ final class Config
 	public function getInputFormat(): string
 	{
 		return $this->inputFormat;
+	}
+
+	public function isCaseSensitive(): bool
+	{
+		return $this->caseSensitive;
 	}
 }

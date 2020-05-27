@@ -56,6 +56,8 @@ final class ConfigFactory
 
 		$ret = $ret->withMerge((bool)($options[Options::MERGE] ?? false));
 
+		$ret = $ret->withCaseSensitive((bool)($options[Options::CASE_SENSITIVE] ?? false));
+
 		if ($options[Options::OUTPUT_FORMAT_ELASTIC] ?? false) {
 			$ret = $ret->withOutputFormat(OutputWriterFactory::FORMAT_ELASTIC);
 		}

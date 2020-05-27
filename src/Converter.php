@@ -65,6 +65,8 @@ final class Converter
 		/** @var DataEntry[] $data */
 		$data = [];
 		$lineNo = 0;
+		$caseSensitive = $this->config->isCaseSensitive();
+
 		/** @var Line $line */
 		foreach ($this->readLine($inputFilename) as $line) {
 			$lineNo++;
@@ -74,15 +76,24 @@ final class Converter
 			}
 			$id = $line->getId();
 			$word = $line->getWord();
+			if (!$caseSensitive) {
+				$word = mb_strtolower($word);
+			}
 			if (!isset($data[$id])) {
 				$data[$id] = DataEntry::create($word);
 			}
 			$inflectionalForm = $line->getInflectionalForm();
+			if (!$caseSensitive) {
+				$inflectionalForm = mb_strtolower($inflectionalForm);
+			}
 			if ($inflectionalForm === $word) {
 				continue;
 			}
 			$data[$id]->add($inflectionalForm);
 			if ($this->config->isAddAlternativeEntries() && $alt = $line->getAlternativeEntry()) {
+				if (!$caseSensitive) {
+					$alt = mb_strtolower($alt);
+				}
 				$data[$id]->add($alt);
 			}
 		}

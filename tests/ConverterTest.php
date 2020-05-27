@@ -183,7 +183,7 @@ final class ConverterTest extends TestCase
 		$converter->convert(__DIR__ . '/fixtures/kristin-duplicates.csv', $this->outputFile);
 
 		$line = trim(file($this->outputFile)[0]);
-		$this->assertSame('AA-fundurinn => AA-fundur', $line);
+		$this->assertSame('aa-fundurinn => aa-fundur', $line);
 	}
 
 	public function testConvertOutputFormatSolr(): void
@@ -195,7 +195,36 @@ final class ConverterTest extends TestCase
 		$converter->convert(__DIR__ . '/fixtures/kristin-duplicates.csv', $this->outputFile);
 
 		$line = trim(file($this->outputFile)[0]);
+		$this->assertSame("aa-fundurinn\taa-fundur", $line);
+	}
+
+	public function testConvertCaseSensitive(): void
+	{
+		$converter = $this->createConverter([
+			Options::CASE_SENSITIVE => true,
+		]);
+
+		$converter->convert(__DIR__ . '/fixtures/kristin-duplicates.csv', $this->outputFile);
+
+		$line = trim(file($this->outputFile)[0]);
 		$this->assertSame("AA-fundurinn\tAA-fundur", $line);
+	}
+
+	public function testConvertSpecialMerge(): void
+	{
+		$converter = $this->createConverter([]);
+
+		$converter->convert(__DIR__ . '/fixtures/kristin-þingvellir.csv', $this->outputFile);
+
+		$lines = array_map('trim', array_filter(file($this->outputFile)));
+		$entries = [];
+		foreach ($lines as $line) {
+			$list = explode("\t", $line);
+			$entries[$list[0]][] = $list[1];
+		}
+		$this->assertCount(14, $entries);
+
+		$this->assertSame(['þingvellir', 'þingvöllur'], $entries['þingvalla']);
 	}
 
 	protected function setUp(): void
