@@ -18,7 +18,7 @@ final class ConvertCommand extends Command
 		parent::configure();
 
 		$this->setName('convert');
-		$this->setDescription('Information about terminology can be found here https://bin.arnastofnun.is/DMII/LTdata/k-format/');
+		$this->setDescription("Convert BIN database to stemmer_override file for Lucene based search engine.\n  Information about terminology can be found here https://bin.arnastofnun.is/DMII/LTdata/k-format/");
 
 		$this->addArgument(Options::INPUT_FILE, InputArgument::REQUIRED, 'The input CSV file');
 		$this->addArgument(Options::OUTPUT_FILE, InputArgument::REQUIRED, 'The output file');
