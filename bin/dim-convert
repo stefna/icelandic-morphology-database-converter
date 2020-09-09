@@ -1,4 +1,4 @@
-#!/usr/bin/env php
+#!/usr/bin/env php7.4
 <?php
 if (PHP_SAPI !== 'cli') {
 	echo 'Warning: moya should be invoked via the CLI version of PHP, not the ' . PHP_SAPI . ' SAPI' . PHP_EOL;
