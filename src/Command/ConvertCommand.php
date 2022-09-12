@@ -65,7 +65,12 @@ final class ConvertCommand extends Command
 		$ret = $converter->convert($inputFilename, $outputFilename);
 		if ($output->isVerbose()) {
 			$time = (microtime(true) - $start);
-			$output->writeln(sprintf('Lines: %d, Time: %0.2f sec, max-memory: %0.2f MB', $ret, $time, memory_get_peak_usage(false) / 1000 / 1000));
+			$output->writeln(sprintf(
+				'Lines: %d, Time: %0.2f sec, max-memory: %0.2f MB',
+				$ret,
+				$time,
+				memory_get_peak_usage(false) / 1000 / 1000
+			));
 		}
 		return 0;
 	}
