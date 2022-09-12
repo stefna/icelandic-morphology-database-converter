@@ -10,6 +10,7 @@
 		}
 	],
 	"require": {
+		"php": ">=7.4",
 		"symfony/console": "^4.4"
 	},
 	"require-dev": {
@@ -27,11 +28,6 @@
 	"autoload-dev": {
 		"psr-4": {
 			"Tests\\Stefna\\DIMConverter\\": "tests/"
-		}
-	},
-	"config":{
-		"platform": {
-			"php": "7.4.5"
 		}
 	}
 }
