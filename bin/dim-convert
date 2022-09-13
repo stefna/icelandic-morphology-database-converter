@@ -1,4 +1,4 @@
-#!/usr/bin/env php7.4
+#!/usr/bin/env php
 <?php
 if (PHP_SAPI !== 'cli') {
 	echo 'Warning: moya should be invoked via the CLI version of PHP, not the ' . PHP_SAPI . ' SAPI' . PHP_EOL;
@@ -7,8 +7,4 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 error_reporting(-1);
 
-$useCompiledContainer = false;
-$version = '0.0.0';
-
-$application = new \Stefna\DIMConverter\Application($version, $useCompiledContainer);
-$application->run();
+(new \Stefna\DIMConverter\Application())->run();
