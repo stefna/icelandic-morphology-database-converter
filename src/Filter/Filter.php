@@ -7,7 +7,6 @@ use Stefna\DIMConverter\Entity\Line;
 
 final class Filter
 {
-	/** @var Config */
 	private Config $config;
 
 	public static function create(Config $config): self

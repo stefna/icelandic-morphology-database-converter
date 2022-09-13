@@ -19,13 +19,9 @@ use Throwable;
 final class Converter
 {
 	private ?OutputInterface $output = null;
-	/** @var Config */
 	private Config $config;
-	/** @var OutputWriterInterface */
 	private OutputWriterInterface $outputWriter;
-	/** @var Filter */
 	private Filter $filter;
-	/** @var LineFactory */
 	private LineFactory $lineFactory;
 
 	public static function create(Config $config, OutputWriterInterface $outputWriter, Filter $filter): self
