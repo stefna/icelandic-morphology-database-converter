@@ -3,7 +3,6 @@
 namespace Stefna\DIMConverter\Config;
 
 use Stefna\DIMConverter\Entity\LineFactory;
-use Stefna\DIMConverter\OutputWriter\OutputWriterFactory;
 
 final class Config
 {
@@ -17,7 +16,6 @@ final class Config
 	private bool $addAlternativeEntries = false;
 	private bool $merge = false;
 	private bool $caseSensitive = false;
-	private string $outputFormat = OutputWriterFactory::FORMAT_SOLR;
 	private string $inputFormat = LineFactory::FORMAT_KRISTIN;
 
 	public static function create(): self
@@ -99,23 +97,13 @@ final class Config
 		return $clone;
 	}
 
-	public function withOutputFormat(string $param): self
-	{
-		if ($param !== OutputWriterFactory::FORMAT_ELASTIC && $param !== OutputWriterFactory::FORMAT_SOLR) {
-			return $this;
-		}
-		$clone = clone $this;
-		$clone->outputFormat = $param;
-		return $clone;
-	}
-
 	public function withInputFormat(string $param): self
 	{
 		if ($param !== LineFactory::FORMAT_KRISTIN || $param !== LineFactory::FORMAT_SIGRUN) {
 			return $this;
 		}
 		$clone = clone $this;
-		$clone->outputFormat = $param;
+		$clone->inputFormat = $param;
 		return $clone;
 	}
 
@@ -162,11 +150,6 @@ final class Config
 	public function isMerge(): bool
 	{
 		return $this->merge;
-	}
-
-	public function getOutputFormat(): string
-	{
-		return $this->outputFormat;
 	}
 
 	public function getInputFormat(): string

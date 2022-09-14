@@ -4,7 +4,7 @@ namespace Stefna\DIMConverter\OutputWriter;
 
 use Stefna\DIMConverter\Entity\DataEntry;
 
-final class OutputWriterElastic implements OutputWriterInterface
+final class OutputWriterStemDict implements OutputWriterInterface
 {
 	public function write(string $filename, DataEntry ...$dataEntries): int
 	{

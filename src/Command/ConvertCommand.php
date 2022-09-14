@@ -23,9 +23,6 @@ final class ConvertCommand extends Command
 		$this->addArgument(Options::INPUT_FILE, InputArgument::REQUIRED, 'The input CSV file');
 		$this->addArgument(Options::OUTPUT_FILE, InputArgument::REQUIRED, 'The output file');
 
-		$this->addOption(Options::OUTPUT_FORMAT_ELASTIC, 'E', InputOption::VALUE_NONE, 'Format output for elasticsearch');
-		$this->addOption(Options::OUTPUT_FORMAT_SOLR, 'S', InputOption::VALUE_NONE, 'Format output for solr (default)');
-
 		$this->addOption(Options::INPUT_FORMAT, 'I', InputOption::VALUE_REQUIRED, 'Which format is the input. K or S');
 		$this->addOption(Options::FILTER_DOMAIN, null, InputOption::VALUE_REQUIRED, 'Comma separated list of domains');
 		$this->addOption(Options::FILTER_DOMAIN_BASIC, 'DB', InputOption::VALUE_NONE, 'Preset for basic domain');

@@ -11,7 +11,7 @@ use Stefna\DIMConverter\Entity\Line;
 use Stefna\DIMConverter\Entity\LineFactory;
 use Stefna\DIMConverter\Filter\Filter;
 use Stefna\DIMConverter\Filter\FilterFactory;
-use Stefna\DIMConverter\OutputWriter\OutputWriterFactory;
+use Stefna\DIMConverter\OutputWriter\OutputWriterStemDict;
 use Stefna\DIMConverter\OutputWriter\OutputWriterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
@@ -32,11 +32,10 @@ final class Converter
 	public static function createFromOptionsArray(array $options): self
 	{
 		$configFactory = new ConfigFactory();
-		$outputWriterFactory = new OutputWriterFactory();
 		$filterFactory = new FilterFactory();
 
 		$config = $configFactory->createFromArray($options);
-		$outputWriter = $outputWriterFactory->createFromConfig($config);
+		$outputWriter = new OutputWriterStemDict();
 		$filter = $filterFactory->createFromConfig($config);
 
 		return self::create($config, $outputWriter, $filter);

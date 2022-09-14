@@ -7,8 +7,6 @@ final class Options
 	public const OUTPUT_FILE = 'output-file';
 	public const INPUT_FILE = 'input-file';
 	public const INPUT_FORMAT = 'input-format';
-	public const OUTPUT_FORMAT_ELASTIC = 'output-format-elastic';
-	public const OUTPUT_FORMAT_SOLR = 'output-format-solr';
 	public const FILTER_GENRE_WORD_BASIC = 'filter-genre-word-basic';
 	public const FILTER_DOMAIN_BASIC = 'filter-domain-basic';
 	public const FILTER_MAX_CORRECTNESS_INFLECTIONAL = 'filter-max-correctness-inflectional';
