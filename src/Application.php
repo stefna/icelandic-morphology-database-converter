@@ -13,5 +13,6 @@ final class Application extends \Symfony\Component\Console\Application
 		$this->addCommands([
 			new ConvertCommand(),
 		]);
+		$this->setDefaultCommand('convert', true);
 	}
 }
