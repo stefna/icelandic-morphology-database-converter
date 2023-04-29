@@ -61,6 +61,9 @@ final class ConfigFactory
 		if ($options[Options::OUTPUT_FORMAT_ELASTIC] ?? false) {
 			$ret = $ret->withOutputFormat(OutputWriterFactory::FORMAT_ELASTIC);
 		}
+		if ($options[Options::OUTPUT_FORMAT_HUNSPELL] ?? false) {
+			$ret = $ret->withOutputFormat(OutputWriterFactory::FORMAT_HUNSPELL);
+		}
 
 		$inputFormat = $options[Options::INPUT_FORMAT] ?? null;
 		if ($inputFormat === 'S' || $inputFormat === 's') {

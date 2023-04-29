@@ -198,6 +198,24 @@ final class ConverterTest extends TestCase
 		$this->assertSame("aa-fundurinn\taa-fundur", $line);
 	}
 
+	public function testConvertOutputFormatHunspell(): void
+	{
+		$converter = $this->createConverter([
+			Options::OUTPUT_FORMAT_HUNSPELL => true,
+		]);
+
+		$converter->convert(__DIR__ . '/fixtures/kristin-duplicates.csv', $this->outputFile);
+
+		$dicFile = $this->outputFile . '.dic';
+		$affFile = $this->outputFile . '.aff';
+		$dicLines = array_map('trim', file($dicFile));
+		$affLines = array_map('trim', file($affFile));
+		$this->assertContains('SET UTF-8', $affLines);
+		$this->assertSame("1", $dicLines[0]);
+		$this->assertSame("aa-fundur/1", $dicLines[1]);
+		$this->assertContains("SFX 1 0 inn", $affLines);
+	}
+
 	public function testConvertCaseSensitive(): void
 	{
 		$converter = $this->createConverter([

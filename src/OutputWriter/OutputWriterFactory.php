@@ -7,6 +7,7 @@ use Stefna\DIMConverter\Config\Config;
 final class OutputWriterFactory
 {
 	public const FORMAT_ELASTIC = 'elastic';
+	public const FORMAT_HUNSPELL = 'solr';
 	public const FORMAT_SOLR = 'solr';
 
 	public function __construct()
@@ -17,6 +18,9 @@ final class OutputWriterFactory
 	{
 		if ($config->getOutputFormat() === self::FORMAT_ELASTIC) {
 			return new OutputWriterElastic();
+		}
+		if ($config->getOutputFormat() === self::FORMAT_HUNSPELL) {
+			return new OutputWriterHunspell();
 		}
 		return new OutputWriterSolr();
 	}
