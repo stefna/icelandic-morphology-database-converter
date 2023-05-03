@@ -23,7 +23,7 @@ final class OutputWriterHunspell implements OutputWriterInterface
 		$fDic = fopen($filenameDic, 'wb');
 		fwrite($fDic, $hunspellDb->getTotal() . "\n");
 		foreach ($hunspellDb->getDictLines() as $dictEntry) {
-			fwrite($fDic, $dictEntry . "\n");
+			fwrite($fDic, $dictEntry->toString() . "\n");
 		}
 		fclose($fDic);
 
@@ -31,7 +31,7 @@ final class OutputWriterHunspell implements OutputWriterInterface
 		foreach ($hunspellDb->getAffHeaders() as $affLine) {
 			fwrite($fAff, $affLine . "\n");
 		}
-		foreach ($hunspellDb->getSfx() as $affLine) {
+		foreach ($hunspellDb->getSfxLines() as $affLine) {
 			fwrite($fAff, $affLine . "\n");
 		}
 		fclose($fAff);

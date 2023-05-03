@@ -6,7 +6,9 @@ use InvalidArgumentException;
 
 final class HunspellDb
 {
+	/** @var list<HunspellStem> */
 	private array $dic;
+	/** @var array<string, Sfx> */
 	private array $sfx;
 
 	public static function findSfxParts(string $stem, string $word): array
@@ -33,7 +35,7 @@ final class HunspellDb
 	}
 
 	/**
-	 * @return list<string>
+	 * @return list<HunspellStem>
 	 */
 	public function getDictLines(): array
 	{
@@ -61,22 +63,19 @@ final class HunspellDb
 		];
 	}
 
-	public function getSfx(): array
+	public function getSfxLines(): array
 	{
 		$ret = [];
-		foreach ($this->sfx as $index => $data) {
-			$sfxNum = $index + 1;
-			$stem = $data['word'];
-			$words = $data['words'];
-			$ret[] = sprintf('# Word: %s', $stem);
-			$ret[] = sprintf('SFX %d N %d', $sfxNum, count($words));
-			foreach ($words as $word) {
-				[$strip, $replace] = self::findSfxParts($stem, $word);
+		foreach ($this->sfx as $sfx) {
+			$entries = $sfx->getEntries();
+			$sfxNum = $sfx->getNum();
+			$ret[] = sprintf('SFX %d N %d', $sfxNum, count($entries));
+			foreach ($entries as $entry) {
 				$ret[] = sprintf(
-					'SFX %d %s %s',
+					'SFX %d %s %s .',
 					$sfxNum,
-					$strip,
-					$replace,
+					$entry->getStrip(),
+					$entry->getReplace(),
 				);
 			}
 		}
