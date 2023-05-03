@@ -2,6 +2,7 @@
 
 namespace Stefna\DIMConverter\OutputWriter;
 
+use Psr\Log\LoggerInterface;
 use Stefna\DIMConverter\Config\Config;
 
 final class OutputWriterFactory
@@ -9,9 +10,11 @@ final class OutputWriterFactory
 	public const FORMAT_ELASTIC = 'elastic';
 	public const FORMAT_HUNSPELL = 'solr';
 	public const FORMAT_SOLR = 'solr';
+	private LoggerInterface $logger;
 
-	public function __construct()
+	public function __construct(LoggerInterface $logger)
 	{
+		$this->logger = $logger;
 	}
 
 	public function createFromConfig(Config $config): OutputWriterInterface
@@ -20,7 +23,7 @@ final class OutputWriterFactory
 			return new OutputWriterElastic();
 		}
 		if ($config->getOutputFormat() === self::FORMAT_HUNSPELL) {
-			return new OutputWriterHunspell();
+			return new OutputWriterHunspell($this->logger);
 		}
 		return new OutputWriterSolr();
 	}

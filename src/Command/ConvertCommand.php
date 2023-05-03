@@ -60,9 +60,8 @@ final class ConvertCommand extends Command
 			throw new \InvalidArgumentException('The output file must not exist before run');
 		}
 
-		$converter = Converter::createFromOptionsArray($input->getOptions());
+		$converter = Converter::createFromOptionsArray($output, $input->getOptions());
 
-		$converter->setOutput($output);
 		$ret = $converter->convert($inputFilename, $outputFilename);
 		if ($output->isVerbose()) {
 			$time = (microtime(true) - $start);

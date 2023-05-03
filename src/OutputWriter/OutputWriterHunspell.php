@@ -3,11 +3,19 @@
 namespace Stefna\DIMConverter\OutputWriter;
 
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use Stefna\DIMConverter\Entity\DataEntry;
 use Stefna\DIMConverter\Hunspell\HunspellDbFactory;
 
 final class OutputWriterHunspell implements OutputWriterInterface
 {
+	private LoggerInterface $logger;
+
+	public function __construct(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
+	}
+
 	public function write(string $filename, DataEntry ...$dataEntries): int
 	{
 		$ext = pathinfo($filename, PATHINFO_EXTENSION);
@@ -15,7 +23,7 @@ final class OutputWriterHunspell implements OutputWriterInterface
 			throw new InvalidArgumentException('Hunspell output does not allow extension in output filename');
 		}
 
-		$hunspellDb = (new HunspellDbFactory())->createFromDataEntries(...$dataEntries);
+		$hunspellDb = (new HunspellDbFactory($this->logger))->createFromDataEntries(...$dataEntries);
 
 		$filenameDic = $filename . '.dic';
 		$filenameAff = $filename . '.aff';

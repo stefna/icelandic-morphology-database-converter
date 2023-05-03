@@ -2,10 +2,18 @@
 
 namespace Stefna\DIMConverter\Hunspell;
 
+use Psr\Log\LoggerInterface;
 use Stefna\DIMConverter\Entity\DataEntry;
 
 final class HunspellDbFactory
 {
+	private LoggerInterface $logger;
+
+	public function __construct(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
+	}
+
 	public function createFromDataEntries(DataEntry ...$dataEntries): HunspellDb
 	{
 		/** @var HunspellStem[] $stemList */
@@ -88,16 +96,26 @@ final class HunspellDbFactory
 				$sfxNumForCombo = (int)$sfxNumForCombo;
 				$sfxKey = $sfxNumToKey[$sfxNumForCombo] ?? null;
 				if (!$sfxKey) {
+					$this->logger->warning('Missing sfx-key for combo', [
+						'num' => $sfxNumForCombo,
+					]);
 					continue;
 				}
 				$tmpSfx = $sfxList[$sfxKey] ?? null;
 				if (!$tmpSfx) {
+					$this->logger->warning('Missing sfx entry for combo', [
+						'num' => $sfxNumForCombo,
+						'key' => $sfxKey,
+					]);
 					continue;
 				}
 				array_push($newSfxDicEntries, ...$tmpSfx->getEntries());
 				$tmpSfx->decDictEntries($countComboDicEntries);
 			}
 			if (!$newSfxDicEntries) {
+				$this->logger->warning('No new sfx dict entries found', [
+					'combo_key' => $comboKey,
+				]);
 				continue;
 			}
 			$newSfx = new Sfx(...$newSfxDicEntries);
@@ -105,7 +123,10 @@ final class HunspellDbFactory
 			$newSfx->incDictEntries($countComboDicEntries);
 			$newSfxKey = $newSfx->getKey();
 			if (isset($sfxList[$newSfxKey])) {
-				$blergens = 2;
+				$this->logger->warning('Duplicate new sfx key in combo', [
+					'combo_key' => $comboKey,
+					'sfx_key' => $newSfxKey,
+				]);
 			}
 			$sfxList[$newSfxKey] = $newSfx;
 			foreach ($comboDicEntries as $dicEntry) {
@@ -118,7 +139,10 @@ final class HunspellDbFactory
 		foreach ($sfxList as $sfxKey => $sfx) {
 			if ($sfx->getNumDictEntries() <= 0) {
 				if ($sfx->getNumDictEntries() < 0) {
-					$blergens = 1;
+					$this->logger->warning('Found a sfx with num-dict-entries < 0', [
+						'sfx_key' => $sfx->getKey(),
+						'num_dict_entries' => $sfx->getNumDictEntries(),
+					]);
 				}
 				$toRemove[] = $sfxKey;
 			}

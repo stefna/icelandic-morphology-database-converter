@@ -13,47 +13,54 @@ use Stefna\DIMConverter\Filter\Filter;
 use Stefna\DIMConverter\Filter\FilterFactory;
 use Stefna\DIMConverter\OutputWriter\OutputWriterFactory;
 use Stefna\DIMConverter\OutputWriter\OutputWriterInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
 final class Converter
 {
-	private ?OutputInterface $output = null;
+	private OutputInterface $output;
 	private Config $config;
 	private OutputWriterInterface $outputWriter;
 	private Filter $filter;
 	private LineFactory $lineFactory;
 
-	public static function create(Config $config, OutputWriterInterface $outputWriter, Filter $filter): self
-	{
-		return new self($config, $outputWriter, $filter);
+	public static function create(
+		Config $config,
+		OutputWriterInterface $outputWriter,
+		Filter $filter,
+		OutputInterface $output
+	): self {
+		return new self($config, $outputWriter, $filter, $output);
 	}
 
-	public static function createFromOptionsArray(array $options): self
+	public static function createFromOptionsArray(OutputInterface $output, array $options): self
 	{
 		$configFactory = new ConfigFactory();
-		$outputWriterFactory = new OutputWriterFactory();
+		$outputWriterFactory = new OutputWriterFactory(
+			new ConsoleLogger($output),
+		);
 		$filterFactory = new FilterFactory();
 
 		$config = $configFactory->createFromArray($options);
 		$outputWriter = $outputWriterFactory->createFromConfig($config);
 		$filter = $filterFactory->createFromConfig($config);
 
-		return self::create($config, $outputWriter, $filter);
+		return self::create($config, $outputWriter, $filter, $output);
 	}
 
-	private function __construct(Config $config, OutputWriterInterface $outputWriter, Filter $filter)
-	{
+	private function __construct(
+		Config $config,
+		OutputWriterInterface $outputWriter,
+		Filter $filter,
+		OutputInterface $output
+	) {
 		$this->config = $config;
 		$this->outputWriter = $outputWriter;
 		$this->filter = $filter;
+		$this->output = $output;
 
 		$this->lineFactory = new LineFactory($config);
-	}
-
-	public function setOutput(?OutputInterface $output): void
-	{
-		$this->output = $output;
 	}
 
 	public function convert(string $inputFilename, string $outputFilename): int
