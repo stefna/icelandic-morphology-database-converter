@@ -5,7 +5,8 @@ namespace Stefna\DIMConverter\Hunspell;
 final class HunspellStem
 {
 	private string $stem;
-	private int $sfxNum;
+	/** @var list<int> */
+	private array $sfxNum = [];
 
 	public function __construct(string $stem)
 	{
@@ -17,19 +18,21 @@ final class HunspellStem
 		return $this->stem;
 	}
 
-	public function setSfxNum(int $num): void
+	public function addSfxNum(int $num): void
 	{
-		$this->sfxNum = $num;
+		$this->sfxNum[] = $num;
 	}
 
 	public function toString(): string
 	{
-		if (!isset($this->sfxNum)) {
+		if (!$this->sfxNum) {
 			return $this->stem;
 		}
+		$tmp = $this->sfxNum;
+		sort($tmp, SORT_NUMERIC);
 		return implode('/', [
 			$this->stem,
-			$this->sfxNum,
+			implode(',', $tmp),
 		]);
 	}
 }

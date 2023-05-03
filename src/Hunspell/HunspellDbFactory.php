@@ -32,16 +32,18 @@ final class HunspellDbFactory
 				continue;
 			}
 			$words = array_filter($words, static fn($w) => strpos($w, '/') === false);
-			$sfx = $this->createSfx($entry, $words);
-			$sfxKey = $sfx->getKey();
+			foreach ($words as $wordWord) {
+				$sfx = $this->createSfx($entry, [$wordWord]);
+				$sfxKey = $sfx->getKey();
 
-			$foundSfx = $sfxList[$sfxKey] ?? null;
-			if (!$foundSfx) {
-				$sfxList[$sfxKey] = $sfx;
-				$sfx->setNum($sfxNum++);
-				$foundSfx = $sfx;
+				$foundSfx = $sfxList[$sfxKey] ?? null;
+				if (!$foundSfx) {
+					$sfxList[$sfxKey] = $sfx;
+					$sfx->setNum($sfxNum++);
+					$foundSfx = $sfx;
+				}
+				$entry->addSfxNum($foundSfx->getNum());
 			}
-			$entry->setSfxNum($foundSfx->getNum());
 			$dic[] = $entry;
 		}
 
