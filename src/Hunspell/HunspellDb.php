@@ -60,6 +60,10 @@ final class HunspellDb
 			'',
 			'#Splitted suggestions are most likely compound words',
 			'NOSPLITSUGS',
+			'FLAG num',
+			'FULLSTRIP',
+			'MAXCPDSUGS 0', #https://github.com/hunspell/hunspell/issues/718#issuecomment-787071094
+			'',
 		];
 	}
 
