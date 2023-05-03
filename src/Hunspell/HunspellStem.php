@@ -23,16 +23,29 @@ final class HunspellStem
 		$this->sfxNum[] = $num;
 	}
 
+	public function resetSfxNum(): void
+	{
+		$this->sfxNum = [];
+	}
+
 	public function toString(): string
 	{
 		if (!$this->sfxNum) {
 			return $this->stem;
 		}
-		$tmp = $this->sfxNum;
-		sort($tmp, SORT_NUMERIC);
 		return implode('/', [
 			$this->stem,
-			implode(',', $tmp),
+			implode(',', $this->getSfxNums()),
 		]);
+	}
+
+	/**
+	 * @return int[]
+	 */
+	public function getSfxNums(): array
+	{
+		$tmp = $this->sfxNum;
+		sort($tmp, SORT_NUMERIC);
+		return $tmp;
 	}
 }

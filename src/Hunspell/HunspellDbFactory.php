@@ -8,10 +8,12 @@ final class HunspellDbFactory
 {
 	public function createFromDataEntries(DataEntry ...$dataEntries): HunspellDb
 	{
-		/** @var HunspellStem[] $dic */
-		$dic = [];
+		/** @var HunspellStem[] $stemList */
+		$stemList = [];
 		/** @var array<string, Sfx> $sfxList */
 		$sfxList = [];
+		/** @var array<int, string> $sfxNumToKey */
+		$sfxNumToKey = [];
 
 		$sfxNum = 1;
 		foreach ($dataEntries as $dataEntry) {
@@ -28,7 +30,7 @@ final class HunspellDbFactory
 				unset($words[$tmp]);
 			}
 			if (count($words) < 1) {
-				$dic[] = $entry;
+				$stemList[] = $entry;
 				continue;
 			}
 			$words = array_filter($words, static fn($w) => strpos($w, '/') === false);
@@ -39,15 +41,91 @@ final class HunspellDbFactory
 				$foundSfx = $sfxList[$sfxKey] ?? null;
 				if (!$foundSfx) {
 					$sfxList[$sfxKey] = $sfx;
-					$sfx->setNum($sfxNum++);
+					$sfx->setNum($sfxNum);
 					$foundSfx = $sfx;
+					$sfxNumToKey[$sfxNum] = $sfxKey;
+					$sfxNum++;
 				}
 				$entry->addSfxNum($foundSfx->getNum());
+				$foundSfx->incDictEntries();
 			}
-			$dic[] = $entry;
+			$stemList[] = $entry;
 		}
 
-		return new HunspellDb($dic, $sfxList);
+		$this->mergeAndOptimize($stemList, $sfxList, $sfxNumToKey, $sfxNum);
+
+		return new HunspellDb($stemList, $sfxList);
+	}
+
+	/**
+	 * @param HunspellStem[] $stemList
+	 * @param array<string, Sfx> $sfxList
+	 * @param array<int, string> $sfxNumToKey
+	 */
+	private function mergeAndOptimize(array $stemList, array &$sfxList, array $sfxNumToKey, int &$sfxNum): void
+	{
+		/** @var array<array-key, list<HunspellStem>> $combos */
+		$combos = [];
+		foreach ($stemList as $dicEntry) {
+			$sfxNums = $dicEntry->getSfxNums();
+			if (count($sfxNums) < 2) {
+				continue;
+			}
+			$sfxComboKey = implode(',', $sfxNums);
+			$combos[$sfxComboKey][] = $dicEntry;
+		}
+
+		$comboEntriesNumberThreshold = 300;
+		foreach ($combos as $comboKey => $comboDicEntries) {
+			$countComboDicEntries = count($comboDicEntries);
+			if ($countComboDicEntries < $comboEntriesNumberThreshold) {
+				continue;
+			}
+
+			$sfxNumsFromCombo = explode(',', (string)$comboKey);
+			$newSfxDicEntries = [];
+			foreach ($sfxNumsFromCombo as $sfxNumForCombo) {
+				$sfxNumForCombo = (int)$sfxNumForCombo;
+				$sfxKey = $sfxNumToKey[$sfxNumForCombo] ?? null;
+				if (!$sfxKey) {
+					continue;
+				}
+				$tmpSfx = $sfxList[$sfxKey] ?? null;
+				if (!$tmpSfx) {
+					continue;
+				}
+				array_push($newSfxDicEntries, ...$tmpSfx->getEntries());
+				$tmpSfx->decDictEntries($countComboDicEntries);
+			}
+			if (!$newSfxDicEntries) {
+				continue;
+			}
+			$newSfx = new Sfx(...$newSfxDicEntries);
+			$newSfx->setNum($sfxNum++);
+			$newSfx->incDictEntries($countComboDicEntries);
+			$newSfxKey = $newSfx->getKey();
+			if (isset($sfxList[$newSfxKey])) {
+				$blergens = 2;
+			}
+			$sfxList[$newSfxKey] = $newSfx;
+			foreach ($comboDicEntries as $dicEntry) {
+				$dicEntry->resetSfxNum();
+				$dicEntry->addSfxNum($newSfx->getNum());
+			}
+		}
+
+		$toRemove = [];
+		foreach ($sfxList as $sfxKey => $sfx) {
+			if ($sfx->getNumDictEntries() <= 0) {
+				if ($sfx->getNumDictEntries() < 0) {
+					$blergens = 1;
+				}
+				$toRemove[] = $sfxKey;
+			}
+		}
+		foreach ($toRemove as $sfxKey) {
+			unset($sfxList[$sfxKey]);
+		}
 	}
 
 	private function createSfx(HunspellStem $entry, array $words): Sfx

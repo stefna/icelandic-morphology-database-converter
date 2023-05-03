@@ -10,6 +10,7 @@ final class Sfx
 	private array $entries;
 	private string $key;
 	private int $num;
+	private int $numDictEntries = 0;
 
 	public function __construct(SfxEntry ...$entries)
 	{
@@ -40,13 +41,30 @@ final class Sfx
 		return $this->entries;
 	}
 
+	public function incDictEntries(int $num = 1): void
+	{
+		$this->numDictEntries += $num;
+	}
+
+	public function decDictEntries(int $num): void
+	{
+		$this->numDictEntries -= $num;
+	}
+
+	public function getNumDictEntries(): int {
+		return $this->numDictEntries;
+	}
+
 	private function createKey(): string
 	{
-		$keys = $values = [];
+		$items = [];
 		foreach ($this->entries as $entry) {
-			$keys[] = $entry->getStrip();
-			$values[] = $entry->getReplace();
+			$item = implode('=', [
+				$entry->getStrip(),
+				$entry->getReplace(),
+			]);
+			$items[] = $item;
 		}
-		return json_encode(array_combine($keys, $values), JSON_THROW_ON_ERROR, JSON_UNESCAPED_UNICODE);
+		return implode('|', $items);
 	}
 }
