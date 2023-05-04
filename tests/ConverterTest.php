@@ -5,6 +5,7 @@ namespace Tests\Stefna\DIMConverter;
 use PHPUnit\Framework\TestCase;
 use Stefna\DIMConverter\Converter;
 use Stefna\DIMConverter\Options;
+use Symfony\Component\Console\Output\NullOutput;
 
 final class ConverterTest extends TestCase
 {
@@ -262,6 +263,6 @@ final class ConverterTest extends TestCase
 
 	private function createConverter(array $options): Converter
 	{
-		return Converter::createFromOptionsArray($options);
+		return Converter::createFromOptionsArray(new NullOutput(), $options);
 	}
 }
