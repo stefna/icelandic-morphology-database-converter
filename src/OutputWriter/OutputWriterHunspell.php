@@ -28,22 +28,31 @@ final class OutputWriterHunspell implements OutputWriterInterface
 		$filenameDic = $filename . '.dic';
 		$filenameAff = $filename . '.aff';
 
+		$numAff = $numDic = 0;
+
 		$fDic = fopen($filenameDic, 'wb');
 		fwrite($fDic, $hunspellDb->getTotal() . "\n");
 		foreach ($hunspellDb->getDictLines() as $dictEntry) {
 			fwrite($fDic, $dictEntry->toString() . "\n");
+			$numDic++;
 		}
 		fclose($fDic);
 
 		$fAff = fopen($filenameAff, 'wb');
 		foreach ($hunspellDb->getAffHeaders() as $affLine) {
 			fwrite($fAff, $affLine . "\n");
+			$numAff++;
 		}
 		foreach ($hunspellDb->getSfxLines() as $affLine) {
 			fwrite($fAff, $affLine . "\n");
+			$numAff++;
 		}
 		fclose($fAff);
 
+		$this->logger->notice('Wrote to hunspell files', [
+			'num_dic_lines' => $numDic,
+			'num_aff_lines' => $numAff,
+		]);
 		return $hunspellDb->getTotal();
 	}
 }

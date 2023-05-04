@@ -23,7 +23,7 @@ final class HunspellDbFactory
 		/** @var array<int, string> $sfxNumToKey */
 		$sfxNumToKey = [];
 
-		$this->logger->info('Hunspell: Start creating entries');
+		$this->logger->notice('Hunspell: Start creating entries');
 		$sfxNum = 1;
 		foreach ($dataEntries as $dataEntry) {
 			$word = $dataEntry->getWord();
@@ -60,14 +60,14 @@ final class HunspellDbFactory
 			}
 			$stemList[] = $entry;
 		}
-		$this->logger->info('Hunspell: Main loop done', [
+		$this->logger->notice('Hunspell: Main loop done', [
 			'num_stems' => count($stemList),
 			'num_sfxs' => count($sfxList),
 		]);
 
 		$this->mergeAndOptimize($stemList, $sfxList, $sfxNumToKey, $sfxNum);
 
-		$this->logger->info('Hunspell: Merge optimization done', [
+		$this->logger->notice('Hunspell: Merge optimization done', [
 			'new_num_stems' => count($stemList),
 			'new_num_sfxs' => count($sfxList),
 		]);
@@ -131,7 +131,7 @@ final class HunspellDbFactory
 			$newSfx = new Sfx(...$newSfxDicEntries);
 			$newSfx->setNum($sfxNum++);
 			$newSfx->incDictEntries($countComboDicEntries);
-			$this->logger->debug('Found a combo to merge', [
+			$this->logger->info('Found a combo to merge', [
 				'key' => $comboKey,
 				'sfx_num' => $newSfx->getNum(),
 				'num_dict_entries' => $countComboDicEntries,
