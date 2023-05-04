@@ -214,7 +214,7 @@ final class ConverterTest extends TestCase
 		$this->assertContains('SET UTF-8', $affLines);
 		$this->assertSame("1", $dicLines[0]);
 		$this->assertSame("aa-fundur/1", $dicLines[1]);
-		$this->assertContains("SFX 1 0 inn", $affLines);
+		$this->assertContains("SFX 1 0 inn .", $affLines);
 	}
 
 	public function testConvertCaseSensitive(): void
