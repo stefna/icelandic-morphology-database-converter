@@ -10,10 +10,12 @@ use Stefna\DIMConverter\Hunspell\HunspellDbFactory;
 final class OutputWriterHunspell implements OutputWriterInterface
 {
 	private LoggerInterface $logger;
+	private int $comboEntriesThreshold;
 
-	public function __construct(LoggerInterface $logger)
+	public function __construct(LoggerInterface $logger, int $comboEntriesThreshold)
 	{
 		$this->logger = $logger;
+		$this->comboEntriesThreshold = $comboEntriesThreshold;
 	}
 
 	public function write(string $filename, DataEntry ...$dataEntries): int
@@ -23,7 +25,8 @@ final class OutputWriterHunspell implements OutputWriterInterface
 			throw new InvalidArgumentException('Hunspell output does not allow extension in output filename');
 		}
 
-		$hunspellDb = (new HunspellDbFactory($this->logger))->createFromDataEntries(...$dataEntries);
+		$hunspellDb = (new HunspellDbFactory($this->logger, $this->comboEntriesThreshold))
+			->createFromDataEntries(...$dataEntries);
 
 		$filenameDic = $filename . '.dic';
 		$filenameAff = $filename . '.aff';

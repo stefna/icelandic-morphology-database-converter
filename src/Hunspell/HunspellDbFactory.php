@@ -8,10 +8,12 @@ use Stefna\DIMConverter\Entity\DataEntry;
 final class HunspellDbFactory
 {
 	private LoggerInterface $logger;
+	private int $comboEntriesThreshold;
 
-	public function __construct(LoggerInterface $logger)
+	public function __construct(LoggerInterface $logger, int $comboEntriesThreshold)
 	{
 		$this->logger = $logger;
+		$this->comboEntriesThreshold = $comboEntriesThreshold;
 	}
 
 	public function createFromDataEntries(DataEntry ...$dataEntries): HunspellDb
@@ -23,7 +25,9 @@ final class HunspellDbFactory
 		/** @var array<int, string> $sfxNumToKey */
 		$sfxNumToKey = [];
 
-		$this->logger->notice('Hunspell: Start creating entries');
+		$this->logger->notice('Hunspell: Start creating entries', [
+			'combo_threshold' => $this->comboEntriesThreshold,
+		]);
 		$sfxNum = 1;
 		foreach ($dataEntries as $dataEntry) {
 			$word = $dataEntry->getWord();
@@ -65,12 +69,14 @@ final class HunspellDbFactory
 			'num_sfxs' => count($sfxList),
 		]);
 
-		$this->mergeAndOptimize($stemList, $sfxList, $sfxNumToKey, $sfxNum);
+		if ($this->comboEntriesThreshold > 0) {
+			$this->mergeAndOptimize($stemList, $sfxList, $sfxNumToKey, $sfxNum);
 
-		$this->logger->notice('Hunspell: Merge optimization done', [
-			'new_num_stems' => count($stemList),
-			'new_num_sfxs' => count($sfxList),
-		]);
+			$this->logger->notice('Hunspell: Merge optimization done', [
+				'new_num_stems' => count($stemList),
+				'new_num_sfxs' => count($sfxList),
+			]);
+		}
 
 		return new HunspellDb($stemList, $sfxList);
 	}
@@ -93,10 +99,9 @@ final class HunspellDbFactory
 			$combos[$sfxComboKey][] = $dicEntry;
 		}
 
-		$comboEntriesNumberThreshold = 300;
 		foreach ($combos as $comboKey => $comboDicEntries) {
 			$countComboDicEntries = count($comboDicEntries);
-			if ($countComboDicEntries < $comboEntriesNumberThreshold) {
+			if ($countComboDicEntries < $this->comboEntriesThreshold) {
 				continue;
 			}
 

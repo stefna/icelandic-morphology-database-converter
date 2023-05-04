@@ -48,4 +48,5 @@ final class Options
 	public const MERGE = 'merge';
 	public const ADD_ALTERNATIVE_ENTRIES = 'add-alternative-entries';
 	public const CASE_SENSITIVE = 'case-sensitive';
+	public const HUNSPELL_COMBO_THRESHOLD = 'hunspell-combo-threshold';
 }

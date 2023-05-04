@@ -23,7 +23,7 @@ final class OutputWriterFactory
 			return new OutputWriterElastic();
 		}
 		if ($config->getOutputFormat() === self::FORMAT_HUNSPELL) {
-			return new OutputWriterHunspell($this->logger);
+			return new OutputWriterHunspell($this->logger, $config->getHunspellComboThreshold());
 		}
 		return new OutputWriterSolr();
 	}

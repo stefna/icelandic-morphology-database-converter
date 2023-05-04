@@ -19,6 +19,7 @@ final class Config
 	private bool $caseSensitive = false;
 	private string $outputFormat = OutputWriterFactory::FORMAT_SOLR;
 	private string $inputFormat = LineFactory::FORMAT_KRISTIN;
+	private int $hunspellComboThreshold = 300;
 
 	public static function create(): self
 	{
@@ -96,6 +97,13 @@ final class Config
 	{
 		$clone = clone $this;
 		$clone->caseSensitive = $param;
+		return $clone;
+	}
+
+	public function withHunspellComboThreshold(int $param): self
+	{
+		$clone = clone $this;
+		$clone->hunspellComboThreshold = $param;
 		return $clone;
 	}
 
@@ -182,5 +190,10 @@ final class Config
 	public function isCaseSensitive(): bool
 	{
 		return $this->caseSensitive;
+	}
+
+	public function getHunspellComboThreshold(): int
+	{
+		return $this->hunspellComboThreshold;
 	}
 }
