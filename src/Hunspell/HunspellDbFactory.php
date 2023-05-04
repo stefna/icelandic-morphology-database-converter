@@ -23,6 +23,7 @@ final class HunspellDbFactory
 		/** @var array<int, string> $sfxNumToKey */
 		$sfxNumToKey = [];
 
+		$this->logger->info('Hunspell: Start creating entries');
 		$sfxNum = 1;
 		foreach ($dataEntries as $dataEntry) {
 			$word = $dataEntry->getWord();
@@ -59,8 +60,17 @@ final class HunspellDbFactory
 			}
 			$stemList[] = $entry;
 		}
+		$this->logger->info('Hunspell: Main loop done', [
+			'num_stems' => count($stemList),
+			'num_sfxs' => count($sfxList),
+		]);
 
 		$this->mergeAndOptimize($stemList, $sfxList, $sfxNumToKey, $sfxNum);
+
+		$this->logger->info('Hunspell: Merge optimization done', [
+			'new_num_stems' => count($stemList),
+			'new_num_sfxs' => count($sfxList),
+		]);
 
 		return new HunspellDb($stemList, $sfxList);
 	}
