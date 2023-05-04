@@ -58,8 +58,15 @@ final class ConfigFactory
 
 		$ret = $ret->withCaseSensitive((bool)($options[Options::CASE_SENSITIVE] ?? false));
 
+		if ($options[Options::HUNSPELL_COMBO_THRESHOLD] ?? false) {
+			$ret = $ret->withHunspellComboThreshold((int)$options[Options::HUNSPELL_COMBO_THRESHOLD]);
+		}
+
 		if ($options[Options::OUTPUT_FORMAT_ELASTIC] ?? false) {
 			$ret = $ret->withOutputFormat(OutputWriterFactory::FORMAT_ELASTIC);
+		}
+		if ($options[Options::OUTPUT_FORMAT_HUNSPELL] ?? false) {
+			$ret = $ret->withOutputFormat(OutputWriterFactory::FORMAT_HUNSPELL);
 		}
 
 		$inputFormat = $options[Options::INPUT_FORMAT] ?? null;

@@ -25,6 +25,7 @@ final class ConvertCommand extends Command
 
 		$this->addOption(Options::OUTPUT_FORMAT_ELASTIC, 'E', InputOption::VALUE_NONE, 'Format output for elasticsearch');
 		$this->addOption(Options::OUTPUT_FORMAT_SOLR, 'S', InputOption::VALUE_NONE, 'Format output for solr (default)');
+		$this->addOption(Options::OUTPUT_FORMAT_HUNSPELL, 'H', InputOption::VALUE_NONE, 'Format output for hunspell (filename must be the prefix (will generate .dic and .aff files))');
 
 		$this->addOption(Options::INPUT_FORMAT, 'I', InputOption::VALUE_REQUIRED, 'Which format is the input. K or S');
 		$this->addOption(Options::FILTER_DOMAIN, null, InputOption::VALUE_REQUIRED, 'Comma separated list of domains');
@@ -45,6 +46,7 @@ final class ConvertCommand extends Command
 		$this->addOption(Options::ADD_ALTERNATIVE_ENTRIES, null, InputOption::VALUE_NONE, 'Should the alternative entry be added if available');
 		$this->addOption(Options::MERGE, null, InputOption::VALUE_NONE, 'Should same inflection forms be merged into the first base form (based on ID)');
 		$this->addOption(Options::CASE_SENSITIVE, null, InputOption::VALUE_NONE, 'Should the words keep case (default: no)');
+		$this->addOption(Options::HUNSPELL_COMBO_THRESHOLD, null, InputOption::VALUE_REQUIRED, 'Hunspell "combo" optimization threshold', 300);
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -59,9 +61,8 @@ final class ConvertCommand extends Command
 			throw new \InvalidArgumentException('The output file must not exist before run');
 		}
 
-		$converter = Converter::createFromOptionsArray($input->getOptions());
+		$converter = Converter::createFromOptionsArray($output, $input->getOptions());
 
-		$converter->setOutput($output);
 		$ret = $converter->convert($inputFilename, $outputFilename);
 		if ($output->isVerbose()) {
 			$time = (microtime(true) - $start);

@@ -4,6 +4,7 @@ namespace Stefna\DIMConverter;
 
 use Generator;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use Stefna\DIMConverter\Config\Config;
 use Stefna\DIMConverter\Config\ConfigFactory;
 use Stefna\DIMConverter\Entity\DataEntry;
@@ -18,42 +19,49 @@ use Throwable;
 
 final class Converter
 {
-	private ?OutputInterface $output = null;
 	private Config $config;
 	private OutputWriterInterface $outputWriter;
 	private Filter $filter;
 	private LineFactory $lineFactory;
+	private LoggerInterface $logger;
 
-	public static function create(Config $config, OutputWriterInterface $outputWriter, Filter $filter): self
-	{
-		return new self($config, $outputWriter, $filter);
+	public static function create(
+		Config $config,
+		OutputWriterInterface $outputWriter,
+		Filter $filter,
+		LoggerInterface $logger
+	): self {
+		return new self($config, $outputWriter, $filter, $logger);
 	}
 
-	public static function createFromOptionsArray(array $options): self
+	public static function createFromOptionsArray(OutputInterface $output, array $options): self
 	{
 		$configFactory = new ConfigFactory();
-		$outputWriterFactory = new OutputWriterFactory();
+		$logger = new LocalConsoleLogger($output);
+		$outputWriterFactory = new OutputWriterFactory(
+			$logger,
+		);
 		$filterFactory = new FilterFactory();
 
 		$config = $configFactory->createFromArray($options);
 		$outputWriter = $outputWriterFactory->createFromConfig($config);
 		$filter = $filterFactory->createFromConfig($config);
 
-		return self::create($config, $outputWriter, $filter);
+		return self::create($config, $outputWriter, $filter, $logger);
 	}
 
-	private function __construct(Config $config, OutputWriterInterface $outputWriter, Filter $filter)
-	{
+	private function __construct(
+		Config $config,
+		OutputWriterInterface $outputWriter,
+		Filter $filter,
+		LoggerInterface $logger
+	) {
 		$this->config = $config;
 		$this->outputWriter = $outputWriter;
 		$this->filter = $filter;
+		$this->logger = $logger;
 
 		$this->lineFactory = new LineFactory($config);
-	}
-
-	public function setOutput(?OutputInterface $output): void
-	{
-		$this->output = $output;
 	}
 
 	public function convert(string $inputFilename, string $outputFilename): int
@@ -67,7 +75,9 @@ final class Converter
 		foreach ($this->readLine($inputFilename) as $line) {
 			$lineNo++;
 			if (!$this->filter->filter($line)) {
-				$this->debug(sprintf('Filter out line %d', $lineNo));
+				$this->logger->info('Filter out line while reading', [
+					'lineNo' => $lineNo,
+				]);
 				continue;
 			}
 			$id = $line->getId();
@@ -101,6 +111,10 @@ final class Converter
 			$data = $this->merge($data);
 		}
 
+		$this->logger->notice('Start writing output', [
+			'to' => $outputFilename,
+			'count' => count($data),
+		]);
 		return $this->outputWriter->write($outputFilename, ...array_values($data));
 	}
 
@@ -110,18 +124,24 @@ final class Converter
 		if (!$f) {
 			throw new InvalidArgumentException('Could not open input file');
 		}
-		$this->debug(sprintf('Starting to read from %s', $inputFilename));
+		$this->logger->notice('Starting to read from file', [
+			'file' => $inputFilename,
+		]);
 		$lineNo = 0;
 		try {
 			while ($line = fgets($f)) {
 				$lineNo++;
-				$this->debug(sprintf('Reading line %d', $lineNo));
+				$this->logger->debug('Reading line', [
+					'line' => $line,
+				]);
 				try {
 					yield $this->lineFactory->create($line);
 				}
 				catch (Throwable $e) {
-					// just ignore, or perhaps log?
-					$this->output && $this->output->writeln(sprintf('<warn>Problem in line %d</warn>', $lineNo));
+					$this->logger->warning('Error while reading line', [
+						'line' => $lineNo,
+						'e' => $e->getMessage(),
+					]);
 				}
 			}
 		}
@@ -136,7 +156,9 @@ final class Converter
 	 */
 	private function merge(array $data): array
 	{
-		$this->debug(sprintf('Start merging of %d', count($data)));
+		$this->logger->notice('Start merging of data entries', [
+			'num_entries' => count($data),
+		]);
 		ksort($data);
 
 		$seen = [];
@@ -155,10 +177,5 @@ final class Converter
 			}
 		}
 		return $data;
-	}
-
-	private function debug(string $msg): void
-	{
-		$this->output && $this->output->writeln($msg, OutputInterface::VERBOSITY_DEBUG);
 	}
 }

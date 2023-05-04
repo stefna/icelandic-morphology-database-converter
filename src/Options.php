@@ -9,6 +9,7 @@ final class Options
 	public const INPUT_FORMAT = 'input-format';
 	public const OUTPUT_FORMAT_ELASTIC = 'output-format-elastic';
 	public const OUTPUT_FORMAT_SOLR = 'output-format-solr';
+	public const OUTPUT_FORMAT_HUNSPELL = 'output-format-hunspell';
 	public const FILTER_GENRE_WORD_BASIC = 'filter-genre-word-basic';
 	public const FILTER_DOMAIN_BASIC = 'filter-domain-basic';
 	public const FILTER_MAX_CORRECTNESS_INFLECTIONAL = 'filter-max-correctness-inflectional';
@@ -47,4 +48,5 @@ final class Options
 	public const MERGE = 'merge';
 	public const ADD_ALTERNATIVE_ENTRIES = 'add-alternative-entries';
 	public const CASE_SENSITIVE = 'case-sensitive';
+	public const HUNSPELL_COMBO_THRESHOLD = 'hunspell-combo-threshold';
 }
