@@ -51,7 +51,8 @@ final class Sfx
 		$this->numDictEntries -= $num;
 	}
 
-	public function getNumDictEntries(): int {
+	public function getNumDictEntries(): int
+	{
 		return $this->numDictEntries;
 	}
 
