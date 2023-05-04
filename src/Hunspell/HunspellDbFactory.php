@@ -88,6 +88,7 @@ final class HunspellDbFactory
 	 */
 	private function mergeAndOptimize(array $stemList, array &$sfxList, array $sfxNumToKey, int &$sfxNum): void
 	{
+		$maxSfxBefore = $sfxNum;
 		/** @var array<array-key, list<HunspellStem>> $combos */
 		$combos = [];
 		foreach ($stemList as $dicEntry) {
@@ -167,6 +168,10 @@ final class HunspellDbFactory
 				$toRemove[] = $sfxKey;
 			}
 		}
+		$this->logger->notice('Hunspell optimization done', [
+			'removed_sfx' => count($toRemove),
+			'added_sfx' => $sfxNum - $maxSfxBefore,
+		]);
 		foreach ($toRemove as $sfxKey) {
 			unset($sfxList[$sfxKey]);
 		}
