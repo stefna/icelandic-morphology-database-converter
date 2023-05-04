@@ -8,7 +8,7 @@ use Stefna\DIMConverter\Config\Config;
 final class OutputWriterFactory
 {
 	public const FORMAT_ELASTIC = 'elastic';
-	public const FORMAT_HUNSPELL = 'solr';
+	public const FORMAT_HUNSPELL = 'hunspell';
 	public const FORMAT_SOLR = 'solr';
 	private LoggerInterface $logger;
 
