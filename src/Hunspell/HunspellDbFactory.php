@@ -131,6 +131,11 @@ final class HunspellDbFactory
 			$newSfx = new Sfx(...$newSfxDicEntries);
 			$newSfx->setNum($sfxNum++);
 			$newSfx->incDictEntries($countComboDicEntries);
+			$this->logger->debug('Found a combo to merge', [
+				'key' => $comboKey,
+				'sfx_num' => $newSfx->getNum(),
+				'num_dict_entries' => $countComboDicEntries,
+			]);
 			$newSfxKey = $newSfx->getKey();
 			if (isset($sfxList[$newSfxKey])) {
 				$this->logger->warning('Duplicate new sfx key in combo', [
